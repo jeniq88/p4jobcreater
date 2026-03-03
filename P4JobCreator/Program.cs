@@ -1,13 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 class Program
 {
     static int Main(string[] args)
     {
-        string p4Port   = Environment.GetEnvironmentVariable("P4PORT")   ?? "JQUESTA0725:1666";
+        string p4Port   = Environment.GetEnvironmentVariable("P4PORT")   ?? "ssl:localhost:1666";
         string p4User   = Environment.GetEnvironmentVariable("P4USER")   ?? "jeniq";
         string p4Passwd = Environment.GetEnvironmentVariable("P4PASSWD") ?? "Password";
         string p4Client = Environment.GetEnvironmentVariable("P4CLIENT") ?? "jeniq_JQUESTA0725_5856";
@@ -45,30 +47,88 @@ class Program
         }
 
         TrustP4Server(p4Port, p4User, p4Passwd);
+        EnsureCustomFieldsInJobSpec(p4Port, p4User, p4Passwd);
 
         int errorCount = 0;
         foreach (JsonElement evt in events.EnumerateArray())
         {
-            string ISSUE_ID  = "";
-            string ISSUE_URL = "";
+            string issueId  = "";
+            string issueUrl = "";
 
             if (evt.TryGetProperty("item", out JsonElement item))
             {
                 if (item.TryGetProperty("tag", out JsonElement tag))
-                    ISSUE_ID = tag.GetString() ?? "";
+                    issueId = tag.GetString() ?? "";
 
                 if (item.TryGetProperty("httpurl", out JsonElement url))
-                    ISSUE_URL = url.GetString() ?? "";
+                    issueUrl = url.GetString() ?? "";
             }
 
             string description = BuildDescription(payloadJson, evt);
-            string jobSpec = BuildJobSpec(p4User, description, ISSUE_ID, ISSUE_URL);
+            string jobSpec = BuildJobSpec(p4User, description, issueId, issueUrl);
 
             bool success = CreateP4Job(jobSpec, p4Port, p4User, p4Passwd, p4Client);
             if (!success) errorCount++;
         }
 
         return errorCount > 0 ? 1 : 0;
+    }
+
+    /// <summary>
+    /// Reads the current P4 job spec and adds ISSUE_ID / ISSUE_URL fields if they are missing.
+    /// Requires that the P4 user has admin rights to modify the job spec.
+    /// </summary>
+    static void EnsureCustomFieldsInJobSpec(string p4Port, string p4User, string p4Passwd)
+    {
+        bool ok = RunP4Command("jobspec -o", p4Port, p4User, p4Passwd, null,
+                               out string currentSpec, out string err);
+        if (!ok || string.IsNullOrWhiteSpace(currentSpec))
+        {
+            Console.Error.WriteLine($"P4JobCreator: Could not read job spec: {err}");
+            return;
+        }
+
+        bool hasIssueId  = Regex.IsMatch(currentSpec, @"^\s+\d+\s+ISSUE_ID\b",  RegexOptions.Multiline);
+        bool hasIssueUrl = Regex.IsMatch(currentSpec, @"^\s+\d+\s+ISSUE_URL\b", RegexOptions.Multiline);
+
+        if (hasIssueId && hasIssueUrl)
+        {
+            Console.WriteLine("P4JobCreator: Custom fields already present in job spec.");
+            return;
+        }
+
+        // Find the highest field number so we can append after it
+        var fieldNumbers = new List<int>();
+        foreach (Match m in Regex.Matches(currentSpec, @"^\s+(\d+)\s+\w+", RegexOptions.Multiline))
+            if (int.TryParse(m.Groups[1].Value, out int n)) fieldNumbers.Add(n);
+
+        int nextNum = fieldNumbers.Count > 0 ? fieldNumbers[^1] + 1 : 301;
+
+        // Build new field lines to inject
+        var newFields = new StringBuilder();
+        if (!hasIssueId)
+        {
+            newFields.AppendLine($"\t{nextNum++} ISSUE_ID word 128 optional");
+        }
+        if (!hasIssueUrl)
+        {
+            newFields.AppendLine($"\t{nextNum++} ISSUE_URL line 512 optional");
+        }
+
+        // Insert new fields just before the blank line that ends the Fields section
+        string updatedSpec = Regex.Replace(
+            currentSpec,
+            @"(^\s+\d+\s+\w+[^\n]*\n)(\s*\n)",
+            m => m.Groups[1].Value + newFields.ToString() + m.Groups[2].Value,
+            RegexOptions.Multiline | RegexOptions.RightToLeft
+        );
+
+        bool saved = RunP4Command("jobspec -i", p4Port, p4User, p4Passwd, null,
+                                  out string saveOut, out string saveErr, updatedSpec);
+        if (saved)
+            Console.WriteLine("P4JobCreator: Job spec updated with ISSUE_ID and ISSUE_URL fields.");
+        else
+            Console.Error.WriteLine($"P4JobCreator: Failed to update job spec: {saveErr}");
     }
 
     static string BuildDescription(string fullPayload, JsonElement evt)
@@ -140,7 +200,8 @@ class Program
 
     static bool CreateP4Job(string jobSpec, string p4Port, string p4User, string p4Passwd, string p4Client)
     {
-        bool success = RunP4Command("job -i", p4Port, p4User, p4Passwd, p4Client, out string stdout, out string stderr, jobSpec);
+        bool success = RunP4Command("job -i", p4Port, p4User, p4Passwd, p4Client,
+                                    out string stdout, out string stderr, jobSpec);
 
         if (!string.IsNullOrWhiteSpace(stdout))
             Console.WriteLine($"P4JobCreator: {stdout.Trim()}");
