@@ -1,0 +1,16 @@
+{
+  "name": "webhookreceiver",
+  "version": "1.0.0",
+  "description": "Node app to receive webhooks",
+  "main": "app.js",
+  "scripts": {
+    "build:p4": "dotnet publish P4JobCreator/P4JobCreator.csproj -c Release -o P4JobCreator/publish --self-contained false",
+    "start": "npm run build:p4 && node app.js"
+  },
+  "author": "Perforce Software, Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "https": "^1.0.0"
+  }
+}
