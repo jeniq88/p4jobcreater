@@ -49,20 +49,20 @@ class Program
         int errorCount = 0;
         foreach (JsonElement evt in events.EnumerateArray())
         {
-            string issueId  = "";
-            string issueUrl = "";
+            string ISSUE_ID  = "";
+            string ISSUE_URL = "";
 
             if (evt.TryGetProperty("item", out JsonElement item))
             {
                 if (item.TryGetProperty("tag", out JsonElement tag))
-                    issueId = tag.GetString() ?? "";
+                    ISSUE_ID = tag.GetString() ?? "";
 
                 if (item.TryGetProperty("httpurl", out JsonElement url))
-                    issueUrl = url.GetString() ?? "";
+                    ISSUE_URL = url.GetString() ?? "";
             }
 
             string description = BuildDescription(payloadJson, evt);
-            string jobSpec = BuildJobSpec(p4User, description, issueId, issueUrl);
+            string jobSpec = BuildJobSpec(p4User, description, ISSUE_ID, ISSUE_URL);
 
             bool success = CreateP4Job(jobSpec, p4Port, p4User, p4Passwd, p4Client);
             if (!success) errorCount++;
