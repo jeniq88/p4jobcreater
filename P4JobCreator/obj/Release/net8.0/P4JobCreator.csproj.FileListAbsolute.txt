@@ -1,0 +1,15 @@
+/home/runner/workspace/P4JobCreator/bin/Release/net8.0/P4JobCreator
+/home/runner/workspace/P4JobCreator/bin/Release/net8.0/P4JobCreator.deps.json
+/home/runner/workspace/P4JobCreator/bin/Release/net8.0/P4JobCreator.runtimeconfig.json
+/home/runner/workspace/P4JobCreator/bin/Release/net8.0/P4JobCreator.dll
+/home/runner/workspace/P4JobCreator/bin/Release/net8.0/P4JobCreator.pdb
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.AssemblyInfoInputs.cache
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.AssemblyInfo.cs
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.csproj.CoreCompileInputs.cache
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.sourcelink.json
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.dll
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/refint/P4JobCreator.dll
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.pdb
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/P4JobCreator.genruntimeconfig.cache
+/home/runner/workspace/P4JobCreator/obj/Release/net8.0/ref/P4JobCreator.dll

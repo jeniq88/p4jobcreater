@@ -1,0 +1,5 @@
+/home/runner/workspace/P4JobCreator/publish/P4JobCreator
+/home/runner/workspace/P4JobCreator/publish/P4JobCreator.dll
+/home/runner/workspace/P4JobCreator/publish/P4JobCreator.deps.json
+/home/runner/workspace/P4JobCreator/publish/P4JobCreator.runtimeconfig.json
+/home/runner/workspace/P4JobCreator/publish/P4JobCreator.pdb
