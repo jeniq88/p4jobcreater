@@ -7,7 +7,7 @@ class Program
 {
     static int Main(string[] args)
     {
-        string p4Port   = Environment.GetEnvironmentVariable("P4PORT")   ?? "ssl:localhost:1666";
+        string p4Port   = Environment.GetEnvironmentVariable("P4PORT")   ?? "JQUESTA0725:1666";
         string p4User   = Environment.GetEnvironmentVariable("P4USER")   ?? "jeniq";
         string p4Passwd = Environment.GetEnvironmentVariable("P4PASSWD") ?? "Password";
         string p4Client = Environment.GetEnvironmentVariable("P4CLIENT") ?? "jeniq_JQUESTA0725_5856";
