@@ -1,6 +1,6 @@
 ![Support](https://img.shields.io/badge/Support-None-red.svg)
 # Helix ALM Webhook p4 Job Creator
-## Overview test test
+## Overview
 The Helix ALM Webhook Tester is a simple example application that is able to receive webhook notifications from Helix ALM. 
 
 This can be used for testing purposes, or as a reference for building your own service to handle Helix ALM webhook notifications.
